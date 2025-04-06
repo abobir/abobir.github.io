@@ -1,84 +1,57 @@
-:root {
-    --neon-pink: #ff1b8d;
-    --neon-blue: #00fff9;
-    --neon-purple: #9a1fff;
-    --dark-bg: #1a1a1a;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background-color: var(--dark-bg);
-    font-family: 'Courier New', monospace;
-    color: var(--neon-blue);
-    overflow: hidden;
-    touch-action: none;
-}
-
-.game-container {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-canvas {
-    border: 2px solid var(--neon-pink);
-    box-shadow: 0 0 10px var(--neon-pink);
-    background: rgba(0, 0, 0, 0.8);
-    touch-action: none;
-}
-
-.score-container {
-    position: absolute;
-    top: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    font-size: 2rem;
-    text-shadow: 0 0 10px var(--neon-blue);
-}
-
-.retro-button {
-    background: transparent;
-    border: 2px solid var(--neon-purple);
-    color: var(--neon-purple);
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    margin-top: 20px;
-    cursor: pointer;
-    font-family: 'Courier New', monospace;
-    text-shadow: 0 0 5px var(--neon-purple);
-    box-shadow: 0 0 10px var(--neon-purple);
-    transition: all 0.3s ease;
-}
-
-.retro-button:hover {
-    background: var(--neon-purple);
-    color: var(--dark-bg);
-}
-
-.controls-hint {
-    position: absolute;
-    bottom: 20px;
-    color: var(--neon-pink);
-    font-size: 1rem;
-    text-align: center;
-    opacity: 0.7;
-}
-
-@media (orientation: portrait) {
-    canvas {
-        width: 95vw;
-        height: 70vh;
+class AudioManager {
+    constructor() {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.sounds = {};
+        this.initializeSounds();
     }
-}
 
-@media (orientation: landscape) {
-    canvas {
-        width: 80vw;
-        height: 80vh;
+    async initializeSounds() {
+        // Paddle hit sound
+        this.sounds.paddle = await this.createOscillator(200, 'square', 0.1);
+        // Wall hit sound
+        this.sounds.wall = await this.createOscillator(300, 'sine', 0.1);
+        // Score sound
+        this.sounds.score = await this.createOscillator(400, 'triangle', 0.2);
+    }
+
+    async createOscillator(frequency, type, duration) {
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.type = type;
+        oscillator.frequency.value = frequency;
+        
+        gainNode.gain.value = 0.1;
+        gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioContext.destination);
+        
+        return {
+            play: () => {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                
+                osc.type = type;
+                osc.frequency.value = frequency;
+                
+                gain.gain.value = 0.1;
+                gain.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.audioContext.destination);
+                
+                osc.start();
+                osc.stop(this.audioContext.currentTime + duration);
+            }
+        };
+    }
+
+    playSound(soundName) {
+        if (this.sounds[soundName]) {
+            this.sounds[soundName].play();
+        }
     }
 }
