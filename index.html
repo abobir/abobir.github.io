@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Retro Pong</title>
-  <link rel="stylesheet"style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Pong</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="game-container">
-    <canvas id="gameCanvas"></canvas>
-  <div class="score-container">
-  <div id="playerScore">0</div>
-  <div id="aiScore">0</div>
-  </div>
-  <button id="startButton" class="retro-button">Начать игру</button>
-  <div class="control-hint">Касайтесь боковых сторон для управления</div>
-  </div>
-  <script src="audio.js"></script>
-  <script src="game.js"></script>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="score-container">
+            <div id="playerScore">0</div>
+            <div id="aiScore">0</div>
+        </div>
+        <button id="startButton" class="retro-button">START GAME</button>
+        <div class="controls-hint">Touch sides to move paddle</div>
+    </div>
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>
-    
